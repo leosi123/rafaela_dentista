@@ -85,4 +85,160 @@
       form.nome.classList.remove("invalid");
     });
   }
+
+  /* ---------- Avaliações / Carrossel ---------- */
+
+  // Link do perfil no Google (botão "Ver todas no Google").
+  var GOOGLE_REVIEWS_URL = "https://maps.app.goo.gl/4hHeU2MEiDsw6Vtj9";
+
+  // === Avaliações reais (edite esta lista para adicionar/trocar) ===
+  // Cada item: { name: "Nome", rating: 1..5, text: "Comentário" }
+  var REVIEWS = [
+    {
+      name: "Rodrigo Martins",
+      rating: 5,
+      text: "Dra. Rafaela é uma dentista fantástica. Atenciosa, muito experiente e com muita paciência para explicar todo o processo. Vim dos Estados Unidos para me tratar com ela. Nota Dez!"
+    },
+    {
+      name: "Marinna Lodi",
+      rating: 5,
+      text: "A Rafa é uma profissional incrível, amei a consulta com ela. Com toda certeza indico, me passou segurança e cuidado. Gratidão, Rafa, que seu caminho continue sendo incrivelmente maravilhoso."
+    },
+    {
+      name: "Danúbio Luis Velazquez Hermida",
+      rating: 5,
+      text: "Excelente profissional, simpática e atenciosa. Recomendo 100%. Gostei demais dela. Parabéns e obrigado por tudo."
+    },
+    {
+      name: "Guto Itonaga",
+      rating: 5,
+      text: "Excelente dentista, fez as reparações dos meus dentes com cuidado e qualidade, também me tirou as dúvidas referente a clareamento, que também fiz com ela e fiquei satisfeito com os resultados. Podem escolher ela tranquilamente."
+    },
+    {
+      name: "Ana Paula Padovani",
+      rating: 5,
+      text: "Maravilhosa ✨ Profissional muito eficiente!! Me senti muito acolhida e confortável."
+    }
+  ];
+
+  var carousel = document.getElementById("reviewCarousel");
+  var track = document.getElementById("reviewTrack");
+
+  if (carousel && track && REVIEWS.length) {
+    var prevBtn = document.getElementById("reviewPrev");
+    var nextBtn = document.getElementById("reviewNext");
+    var dotsWrap = document.getElementById("reviewDots");
+    var googleLink = document.getElementById("reviewsGoogleLink");
+    if (googleLink) googleLink.setAttribute("href", GOOGLE_REVIEWS_URL);
+
+    var index = 0;
+    var total = REVIEWS.length;
+    var autoTimer = null;
+    var AUTO_MS = 6000;
+    var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function esc(str) {
+      var d = document.createElement("div");
+      d.textContent = str;
+      return d.innerHTML;
+    }
+
+    function stars(n) {
+      var full = Math.max(0, Math.min(5, n));
+      return "★★★★★".slice(0, full) + "☆☆☆☆☆".slice(0, 5 - full);
+    }
+
+    // Renderiza os slides
+    REVIEWS.forEach(function (r, i) {
+      var li = document.createElement("li");
+      li.className = "review";
+      li.setAttribute("role", "group");
+      li.setAttribute("aria-roledescription", "avaliação");
+      li.setAttribute("aria-label", (i + 1) + " de " + total);
+      li.innerHTML =
+        '<div class="review__card">' +
+          '<div class="review__stars" aria-label="' + r.rating + ' de 5 estrelas">' + stars(r.rating) + "</div>" +
+          '<p class="review__text">' + esc(r.text) + "</p>" +
+          '<p class="review__author">' + esc(r.name) + "</p>" +
+          '<span class="review__source">via <b><span class="g-blue">G</span><span class="g-red">o</span><span class="g-yellow">o</span><span class="g-blue">g</span><span class="g-green">l</span><span class="g-red">e</span></b></span>' +
+        "</div>";
+      track.appendChild(li);
+    });
+
+    // Cria os indicadores (dots)
+    var dots = [];
+    if (dotsWrap && total > 1) {
+      for (var d = 0; d < total; d++) {
+        (function (di) {
+          var dot = document.createElement("button");
+          dot.type = "button";
+          dot.className = "review-dot";
+          dot.setAttribute("role", "tab");
+          dot.setAttribute("aria-label", "Ir para avaliação " + (di + 1));
+          dot.addEventListener("click", function () { goTo(di); restartAuto(); });
+          dotsWrap.appendChild(dot);
+          dots.push(dot);
+        })(d);
+      }
+    }
+
+    function update() {
+      track.style.transform = "translateX(" + (-index * 100) + "%)";
+      dots.forEach(function (dot, i) {
+        dot.classList.toggle("is-active", i === index);
+        dot.setAttribute("aria-selected", i === index ? "true" : "false");
+      });
+    }
+
+    function goTo(i) { index = (i + total) % total; update(); }
+    function next() { goTo(index + 1); }
+    function prev() { goTo(index - 1); }
+
+    // Se houver só 1 avaliação, oculta navegação
+    if (total <= 1) {
+      if (prevBtn) prevBtn.style.display = "none";
+      if (nextBtn) nextBtn.style.display = "none";
+      if (dotsWrap) dotsWrap.style.display = "none";
+    } else {
+      if (nextBtn) nextBtn.addEventListener("click", function () { next(); restartAuto(); });
+      if (prevBtn) prevBtn.addEventListener("click", function () { prev(); restartAuto(); });
+
+      // Navegação por teclado
+      carousel.addEventListener("keydown", function (e) {
+        if (e.key === "ArrowLeft") { prev(); restartAuto(); }
+        if (e.key === "ArrowRight") { next(); restartAuto(); }
+      });
+
+      // Swipe no celular
+      var startX = 0, dx = 0, dragging = false;
+      track.addEventListener("touchstart", function (e) {
+        startX = e.touches[0].clientX; dx = 0; dragging = true; stopAuto();
+      }, { passive: true });
+      track.addEventListener("touchmove", function (e) {
+        if (dragging) dx = e.touches[0].clientX - startX;
+      }, { passive: true });
+      track.addEventListener("touchend", function () {
+        if (dragging && Math.abs(dx) > 40) { dx < 0 ? next() : prev(); }
+        dragging = false; startAuto();
+      });
+
+      // Autoavanço (respeita preferência de movimento reduzido)
+      startAuto();
+      carousel.addEventListener("mouseenter", stopAuto);
+      carousel.addEventListener("mouseleave", startAuto);
+      carousel.addEventListener("focusin", stopAuto);
+      carousel.addEventListener("focusout", startAuto);
+    }
+
+    function startAuto() {
+      if (reduceMotion || total <= 1 || autoTimer) return;
+      autoTimer = window.setInterval(next, AUTO_MS);
+    }
+    function stopAuto() {
+      if (autoTimer) { window.clearInterval(autoTimer); autoTimer = null; }
+    }
+    function restartAuto() { stopAuto(); startAuto(); }
+
+    update();
+  }
 })();

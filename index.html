@@ -36,6 +36,7 @@
           <li><a href="#sobre" class="nav__link">Sobre</a></li>
           <li><a href="#servicos" class="nav__link">Serviços</a></li>
           <li><a href="#diferenciais" class="nav__link">Diferenciais</a></li>
+          <li><a href="#avaliacoes" class="nav__link">Avaliações</a></li>
           <li><a href="#localizacao" class="nav__link">Localização</a></li>
           <li><a href="#contato" class="nav__link">Contato</a></li>
         </ul>
@@ -182,6 +183,37 @@
             <h3>Agendamento fácil</h3>
             <p>Marque sua consulta rapidamente pelo WhatsApp.</p>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ AVALIAÇÕES (GOOGLE) ============ -->
+    <section class="section reviews" id="avaliacoes">
+      <div class="container">
+        <div class="section__head">
+          <p class="section__eyebrow">Avaliações</p>
+          <h2 class="section__title">O que dizem nossos pacientes</h2>
+          <p class="section__lead">Avaliações reais de quem já foi atendido pela Dra. Rafaela.</p>
+        </div>
+
+        <div class="review-carousel" id="reviewCarousel" role="group" aria-roledescription="carrossel" aria-label="Avaliações de pacientes">
+          <button class="review-nav review-nav--prev" id="reviewPrev" type="button" aria-label="Avaliação anterior">‹</button>
+
+          <div class="review-viewport">
+            <ul class="review-track" id="reviewTrack" aria-live="polite">
+              <!-- Slides gerados via js/main.js a partir da lista REVIEWS -->
+            </ul>
+          </div>
+
+          <button class="review-nav review-nav--next" id="reviewNext" type="button" aria-label="Próxima avaliação">›</button>
+
+          <div class="review-dots" id="reviewDots" role="tablist" aria-label="Selecionar avaliação"></div>
+        </div>
+
+        <div class="reviews__cta">
+          <a href="https://maps.app.goo.gl/4hHeU2MEiDsw6Vtj9" class="btn btn--ghost" target="_blank" rel="noopener" id="reviewsGoogleLink">
+            <span aria-hidden="true">⭐</span> Ver todas no Google
+          </a>
         </div>
       </div>
     </section>
