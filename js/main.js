@@ -50,6 +50,22 @@
   /* ---------- Formulário de contato -> WhatsApp ---------- */
   var form = document.getElementById("contactForm");
   if (form) {
+    // Máscara de telefone: (16) 90000-0000
+    function maskPhone(v) {
+      var d = v.replace(/\D/g, "").slice(0, 11);
+      if (!d) return "";
+      if (d.length < 3) return "(" + d;
+      var ddd = d.slice(0, 2);
+      var rest = d.slice(2);
+      if (rest.length <= 4) return "(" + ddd + ") " + rest;
+      if (rest.length <= 8) return "(" + ddd + ") " + rest.slice(0, 4) + "-" + rest.slice(4);
+      return "(" + ddd + ") " + rest.slice(0, 5) + "-" + rest.slice(5);
+    }
+    form.telefone.addEventListener("input", function () {
+      form.telefone.value = maskPhone(form.telefone.value);
+      form.telefone.classList.remove("invalid");
+    });
+
     form.addEventListener("submit", function (e) {
       e.preventDefault();
 
@@ -58,7 +74,7 @@
       var assunto = form.assunto.value;
       var mensagem = form.mensagem.value.trim();
 
-      // Validação simples: nome é obrigatório
+      // Validação: nome é obrigatório
       if (!nome) {
         form.nome.classList.add("invalid");
         form.nome.focus();
@@ -66,12 +82,20 @@
       }
       form.nome.classList.remove("invalid");
 
+      // Validação: telefone obrigatório (mínimo 10 dígitos — DDD + número)
+      if (telefone.replace(/\D/g, "").length < 10) {
+        form.telefone.classList.add("invalid");
+        form.telefone.focus();
+        return;
+      }
+      form.telefone.classList.remove("invalid");
+
       // Monta a mensagem para o WhatsApp
       var linhas = [
         "Olá! Meu nome é " + nome + ".",
         "Assunto: " + assunto + ".",
+        "Telefone: " + telefone + ".",
       ];
-      if (telefone) linhas.push("Telefone: " + telefone + ".");
       if (mensagem) linhas.push("Mensagem: " + mensagem);
 
       var texto = encodeURIComponent(linhas.join("\n"));
@@ -85,6 +109,35 @@
       form.nome.classList.remove("invalid");
     });
   }
+
+  /* ---------- Destaque da seção ativa na navegação (scrollspy) ---------- */
+  (function () {
+    var navLinks = Array.prototype.slice.call(
+      document.querySelectorAll('.nav__list .nav__link')
+    );
+    if (!navLinks.length || !("IntersectionObserver" in window)) return;
+
+    var linkById = {};
+    var sections = [];
+    navLinks.forEach(function (link) {
+      var id = (link.getAttribute("href") || "").replace("#", "");
+      var sec = id && document.getElementById(id);
+      if (sec) { linkById[id] = link; sections.push(sec); }
+    });
+
+    function setActive(id) {
+      navLinks.forEach(function (link) { link.removeAttribute("aria-current"); });
+      if (linkById[id]) linkById[id].setAttribute("aria-current", "page");
+    }
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) setActive(entry.target.id);
+      });
+    }, { rootMargin: "-45% 0px -50% 0px", threshold: 0 });
+
+    sections.forEach(function (sec) { observer.observe(sec); });
+  })();
 
   /* ---------- Avaliações / Carrossel ---------- */
 

@@ -45,6 +45,11 @@ body {
 }
 
 img, iframe { max-width: 100%; display: block; }
+/* height:auto garante que os atributos width/height (bons p/ CLS) não anulem o aspect-ratio do CSS */
+img { height: auto; }
+
+/* Evita "blowout" de grid/flex causado pela largura intrínseca das imagens (overflow horizontal no mobile) */
+.hero__media, .about__media, .hero__content, .about__content { min-width: 0; }
 a { color: inherit; text-decoration: none; }
 h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.2; color: var(--navy); }
 
@@ -91,6 +96,34 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.2; color: var(--n
   border-color: var(--line);
 }
 .btn--ghost:hover { border-color: var(--teal); color: var(--teal-600); }
+
+/* ---------- Ícones (marcas oficiais via sprite SVG) ---------- */
+.icon {
+  width: 1.15em;
+  height: 1.15em;
+  flex: 0 0 auto;
+  fill: currentColor;
+  vertical-align: -0.15em;
+}
+/* Ícones coloridos nos links de texto (mais reconhecíveis) */
+.icon--wa { color: var(--wa-dark); }
+.icon--ig { color: #d6249f; }
+
+/* ---------- Skip link (acessibilidade) ---------- */
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -60px;
+  z-index: 200;
+  background: var(--navy);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  font-family: var(--font-head);
+  font-weight: 600;
+  transition: top .2s ease;
+}
+.skip-link:focus { top: 0; outline: 3px solid var(--teal); }
 
 /* ---------- Cabeçalho ---------- */
 .header {
@@ -139,6 +172,9 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.2; color: var(--n
 }
 .nav__link:hover { color: var(--teal-600); }
 .nav__link:hover::after { width: 100%; }
+/* Seção ativa (scrollspy) */
+.nav__link[aria-current="page"] { color: var(--teal-600); }
+.nav__link[aria-current="page"]::after { width: 100%; }
 
 /* Botão hambúrguer */
 .nav__toggle {
@@ -247,12 +283,12 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.2; color: var(--n
 }
 .about__photo {
   width: 100%;
-  max-width: 420px;
-  aspect-ratio: 1 / 1;
+  max-width: 400px;
+  aspect-ratio: 4 / 5;
   margin-inline: auto;
   border-radius: 24px;
   object-fit: cover;
-  object-position: center 28%;
+  object-position: center top;
   background: var(--sky);
   box-shadow: var(--shadow);
 }
@@ -441,6 +477,7 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.2; color: var(--n
   transition: transform .2s ease, box-shadow .2s ease;
 }
 .whatsapp-float:hover { transform: scale(1.08); box-shadow: 0 10px 30px rgba(37,211,102,.6); }
+.whatsapp-float__icon { width: 30px; height: 30px; fill: currentColor; }
 
 /* ---------- Avaliações / Carrossel ---------- */
 .reviews {

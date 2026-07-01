@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://leosi123.github.io/rafaela_dentista/sitemap.xml
